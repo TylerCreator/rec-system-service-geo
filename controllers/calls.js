@@ -194,8 +194,8 @@ const getCalls = async (req, res) => {
     }
 };
 
-const testCsv = async (req, res) => {
-    console.log("testcsv");
+const dumpCsv = async (req, res) => {
+    console.log("dump-csv");
     try {
         await models.Call.findAll().then((objs) => {
             let calls = [];
@@ -227,5 +227,5 @@ module.exports = {
     getCalls,
     incrCalls,
     updateCalls,
-    testCsv,
+    dumpCsv,
 };

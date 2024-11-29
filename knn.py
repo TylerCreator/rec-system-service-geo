@@ -133,12 +133,17 @@ def get_mid_names(indices, mid_unique):
     return np.array(res)
 
 popular_services = get_popular_services(df_calls, owner_unique, mid_unique)
-
+X = prepare_df(df_calls, mid_unique, owner_unique)
 def get_answer(owner_id):
-    used_services = get_used_services(owner_id, prepare_df(df_calls, mid_unique, owner_unique))
+    used_services = get_used_services(owner_id, X)
     recs = gen_similar_for_user(owner_id, preds, used_services, popular_services, n=15)
     return get_mid_names(recs, mid_unique)
 
-answer = get_answer(sys.argv[2]).tolist()
+answer = {}
+for owner_id in owner_unique:
+    if ('cookies' not in owner_id):
+        answer[owner_id] = get_answer(owner_id).tolist()
+with open('recomendations.json', 'w', encoding='utf-8') as f:
+    json.dump({"prediction": answer }, f, ensure_ascii=False, indent=4)
 print(json.dumps({"prediction": answer }))
 sys.stdout.flush()

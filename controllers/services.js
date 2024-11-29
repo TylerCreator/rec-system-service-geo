@@ -1,6 +1,7 @@
 const axios = require("axios");
 const models = require("../models/models"); // Путь к модели
 const { recover } = require("./compositions");
+const fs = require("fs");
 
 const baseUrl =
     "http://cris.icc.ru/dataset/list?f=185&count_rows=true&iDisplayStart=0&iDisplayLength=";
@@ -193,8 +194,25 @@ const getRecomendations = async (req, res) => {
     }
 };
 
+const getRecomendation = async (req, res) => {
+    try {
+        console.log("recomendation");
+        
+        let file = fs.readFileSync('recomendations.json', 'utf8');
+        let recomendations = JSON.parse(file);
+        if (req.query.user_id && recomendations['prediction'][req.query.user_id]) {
+            res.send(recomendations?.prediction[req.query.user_id])
+        } else{
+            res.send([])
+        } 
+    } catch (error) {
+        console.error("Ошибка при создании рекомендации:", error);
+    }
+};
+
 module.exports = {
     updateServices,
     getServices,
+    getRecomendation,
     getRecomendations,
 };

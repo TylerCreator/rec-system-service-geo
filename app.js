@@ -6,8 +6,6 @@ const cors = require('cors');
 const nocache = require('nocache');
 const cron = require('node-cron');
 const morgan = require('morgan');
-const { createWriteStream} = require('fs')
-const {AsyncParser} = require('@json2csv/node')
 
 const {
   NODE_DOCKER_PORT: PORT = 8080,
@@ -21,8 +19,9 @@ const compositionsRouter = require('./routes/compositions.js')
 const {
   updateAll,
   updateStatics,
+  updateRecomendations,
 } = require('./controllers/update');
-const { testCsv } = require('./controllers/calls.js');
+const { dumpCsv } = require('./controllers/calls.js');
 
 const app = express();
 
@@ -62,7 +61,8 @@ const start = async () => {
       cron.schedule('0 1 * * *', async () => {
         await updateAll();
         await updateStatics();
-        await testCsv();
+        await dumpCsv();
+        await updateRecomendations();
       }, {
         scheduled: true,
         timezone: "Asia/Irkutsk"

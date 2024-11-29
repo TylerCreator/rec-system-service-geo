@@ -100,7 +100,30 @@ const updateStatics = async (req, res) => {
     }
 };
 
+const updateRecomendations = async (req, res) => {
+    try {
+        console.log("recomendations");
+        const { spawn } = require("child_process");
+        const pythonProcess = spawn("python3", [
+            "knn.py",
+            "./calls.csv",
+            req.query.user_id,
+        ]);
+        const answer = []
+        pythonProcess.stdout.on("data", (data) => {
+            console.log("data", answer.push(JSON.parse(data.toString())));
+        });
+        pythonProcess.stdout.on("end", (data) => {
+            console.log("end", answer[0].prediction );
+            res.send(answer[0])
+        });
+    } catch (error) {
+        console.error("Ошибка при создании рекомендации:", error);
+    }
+};
+
 module.exports = {
     updateAll,
     updateStatics,
+    updateRecomendations
 };
