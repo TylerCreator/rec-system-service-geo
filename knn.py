@@ -31,6 +31,17 @@ def prepare_df(df, mid_unique, owner_unique):
             X_new[i] /= cur_sum
     return X_new
 
+def prepare_df_new(df, mid_unique, owner_unique):
+    pivot = df.pivot_table(index='owner', columns='mid', aggfunc='count').fillna(0)
+    res = np.zeros((owner_unique.shape[0], mid_unique.shape[0]))
+    for i in range(len(owner_unique)):
+        for j in range(len(mid_unique)):
+            res[i][j] = new.loc[owner_unique[i], mid_unique[j]]
+        s = np.sum(res[i])
+        if s > 0:
+            res[i] /= np.sum(res[i])
+    return res
+
 # вычисляем косинусное расстояние
 def mymetric(A, B):
     res = []
@@ -80,8 +91,9 @@ df_test = df_calls[int(df_calls.shape[0] * 0.7):]
 mid_unique = df_calls['mid'].unique()
 owner_unique = df_calls['owner'].unique()
 
-X_train = prepare_df(df_train, mid_unique, owner_unique)
-X_test = prepare_df(df_test, mid_unique, owner_unique)
+# X_train = prepare_df_new(df_train, mid_unique, owner_unique)
+# X_test = prepare_df_new(df_test, mid_unique, owner_unique)
+X = prepare_df_new(df_calls, mid_unique, owner_unique)
 
 #Находим соседей на обучающем множестве, считаем вызовы на тестовом
 # тут перебор гипер параметра
@@ -90,13 +102,13 @@ X_test = prepare_df(df_test, mid_unique, owner_unique)
 #   preds = mnn.predict(X_train)
 #   print(i, mymetric(X_train, preds))
 
-mnn = MyNN(n_neighbors=4, metric='cosine').fit(X_train)
-preds = mnn.predict(X_train)
+mnn = MyNN(n_neighbors=4, metric='cosine').fit(X)
+preds = mnn.predict(X)
 
 # сортируем сервисы по их популярности
 def get_popular_services(df, owner_unique, mid_unique):
     eps = 1e-10
-    X_popular_df = prepare_df(df_calls, mid_unique, owner_unique)
+    X_popular_df = X
     X_popular_vector = np.mean(X_popular_df, axis=0)
     zero_pop = np.where(np.abs(X_popular_vector) < eps)
     sort_index = np.argsort(X_popular_vector)[::-1]
@@ -133,9 +145,8 @@ def get_mid_names(indices, mid_unique):
     return np.array(res)
 
 popular_services = get_popular_services(df_calls, owner_unique, mid_unique)
-X = prepare_df(df_calls, mid_unique, owner_unique)
 def get_answer(owner_id):
-    used_services = get_used_services(owner_id, X)
+    used_services = get_used_services(owner_id, X_popular_df)
     recs = gen_similar_for_user(owner_id, preds, used_services, popular_services, n=15)
     return get_mid_names(recs, mid_unique)
 
