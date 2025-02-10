@@ -10,16 +10,20 @@ from sklearn.base import BaseEstimator
 
 import sys
 import json
+import time
 
+start = time.time()
 # считываем из базы данных вызовы сервисов
-df_calls = pd.read_csv(sys.argv[1], sep=';')
+df_calls = pd.read_csv('calls.csv', sep=';')
+#df_calls = pd.read_csv('CALLS_21_05.csv', sep=';')
+
 
 # удаляем ненужные колонки (оставялем id, mid, owner, start_time)
 # df_calls = df_calls.drop(['classname', 'created_by', 'created_on', 'edited_by', 'edited_on' ], axis = 1)
 # df_calls = df_calls.drop(['os_pid','status','is_deleted','updatedAt','createdAt','end_time'], axis=1)
 
-# тут вычислем матрицу частот нормализованную 
-def prepare_df(df, mid_unique, owner_unique):
+# тут вычислем матрицу частот нормализованную
+def prepare_df_old(df, mid_unique, owner_unique):
     X_new = np.zeros((owner_unique.shape[0], mid_unique.shape[0]))
     for i in range(len(owner_unique)):
         for j in range(len(mid_unique)):
@@ -31,16 +35,18 @@ def prepare_df(df, mid_unique, owner_unique):
             X_new[i] /= cur_sum
     return X_new
 
-def prepare_df_new(df, mid_unique, owner_unique):
-    pivot = df.pivot_table(index='owner', columns='mid', aggfunc='count').fillna(0)
-    res = np.zeros((owner_unique.shape[0], mid_unique.shape[0]))
-    for i in range(len(owner_unique)):
-        for j in range(len(mid_unique)):
-            res[i][j] = new.loc[owner_unique[i], mid_unique[j]]
-        s = np.sum(res[i])
-        if s > 0:
-            res[i] /= np.sum(res[i])
-    return res
+def prepare_df(df, mid_unique, owner_unique):
+  #df2.pivot_table(values='X', index=['Y','Z'], columns='X', aggfunc='count')
+  pivot = df.pivot_table(values='id', index='owner', columns='mid', aggfunc='count').fillna(0)
+  #pivot = df.pivot_table(index='owner', columns='mid', aggfunc='count').fillna(0)
+  res = np.zeros((owner_unique.shape[0], mid_unique.shape[0]))
+  for i in range(len(owner_unique)):
+    for j in range(len(mid_unique)):
+      res[i][j] = pivot.loc[owner_unique[i], mid_unique[j]]
+    s = np.sum(res[i])
+    if s > 0:
+      res[i] /= np.sum(res[i])
+  return res
 
 # вычисляем косинусное расстояние
 def mymetric(A, B):
@@ -50,6 +56,12 @@ def mymetric(A, B):
         b = [B[i]]
         res.append(cosine_similarity(a, b))
     return np.mean(res)
+
+def get_SVD_preds(X):
+  U, Sigma, Vt = svds(X, k=5)
+  Sigma_diag = np.diag(Sigma)
+  predicted_ratings = np.dot(np.dot(U, Sigma_diag), Vt)
+  return predicted_ratings
 
 class MyNN(BaseEstimator):
     def __init__(self, n_neighbors=3, metric = 'minkowski'):
@@ -84,17 +96,16 @@ class MyNN(BaseEstimator):
             temp /= self.n_neighbors - 1
             preds[i] = temp
         return preds
-
-df_calls = df_calls.sort_values('start_time')
-df_train = df_calls[:int(df_calls.shape[0] * 0.7)]
-df_test = df_calls[int(df_calls.shape[0] * 0.7):]
+#df_calls = df_calls.sort_values('start_time')
+#df_train = df_calls[:int(df_calls.shape[0] * 0.7)]
+#df_test = df_calls[int(df_calls.shape[0] * 0.7):]
 mid_unique = df_calls['mid'].unique()
 owner_unique = df_calls['owner'].unique()
 
-# X_train = prepare_df_new(df_train, mid_unique, owner_unique)
-# X_test = prepare_df_new(df_test, mid_unique, owner_unique)
-X = prepare_df_new(df_calls, mid_unique, owner_unique)
+#X_train = prepare_df(df_train, mid_unique, owner_unique)
+#X_test = prepare_df(df_test, mid_unique, owner_unique)
 
+X = prepare_df(df_calls, mid_unique, owner_unique)
 #Находим соседей на обучающем множестве, считаем вызовы на тестовом
 # тут перебор гипер параметра
 # for i in range(1, 9):
@@ -104,6 +115,7 @@ X = prepare_df_new(df_calls, mid_unique, owner_unique)
 
 mnn = MyNN(n_neighbors=4, metric='cosine').fit(X)
 preds = mnn.predict(X)
+#preds = get_SVD_preds(X)
 
 # сортируем сервисы по их популярности
 def get_popular_services(df, owner_unique, mid_unique):
@@ -145,16 +157,18 @@ def get_mid_names(indices, mid_unique):
     return np.array(res)
 
 popular_services = get_popular_services(df_calls, owner_unique, mid_unique)
-def get_answer(owner_id):
-    used_services = get_used_services(owner_id, X_popular_df)
+X = prepare_df(df_calls, mid_unique, owner_unique)
+def get_answer(owner_id, preds):
+    used_services = get_used_services(owner_id, X)
     recs = gen_similar_for_user(owner_id, preds, used_services, popular_services, n=15)
     return get_mid_names(recs, mid_unique)
 
 answer = {}
 for owner_id in owner_unique:
     if ('cookies' not in owner_id):
-        answer[owner_id] = get_answer(owner_id).tolist()
+        answer[owner_id] = get_answer(owner_id, preds).tolist()
 with open('recomendations.json', 'w', encoding='utf-8') as f:
     json.dump({"prediction": answer }, f, ensure_ascii=False, indent=4)
 print(json.dumps({"prediction": answer }))
+
 sys.stdout.flush()
