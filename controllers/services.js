@@ -137,7 +137,7 @@ const getServices = async (req, res) => {
         } else {
             console.log(recover);
             await recover();
-            const serviceData = await models.Service.findAll({
+            serviceData = await models.Service.findAll({
                 order: [["id", "DESC"]],
             });
         }

@@ -21,13 +21,10 @@ const updateStatics = async (req, res) => {
         const tasks = await models.Call.findAll();
         const s = await models.Service.findAll();
         const u = await models.User.findAll();
-        console.log("s", s.length);
-        console.log("u", u.length);
+
         const userService = {};
         for (let i = 0; i < u.length; i++) {
             for (let j = 0; j < s.length; j++) {
-                console.log("i", i, u[i].getDataValue("id"));
-                console.log("j", j, s[j].getDataValue("id"));
 
                 if (userService[u[i].getDataValue("id")]) {
                     userService[u[i].getDataValue("id")] = {
@@ -41,7 +38,6 @@ const updateStatics = async (req, res) => {
                 }
             }
         }
-        console.log("userService", userService);
         for (let i = 0; i < tasks.length; i++) {
             let task = tasks[i];
             if (userService[task.owner] && userService[task.owner][task.mid]) {
@@ -55,7 +51,6 @@ const updateStatics = async (req, res) => {
 
             userService[task.owner] = { [task.mid]: 1 };
         }
-        console.log("userService", userService);
 
         for (let user in userService) {
             const [newUser, created] = await models.User.findOrCreate({

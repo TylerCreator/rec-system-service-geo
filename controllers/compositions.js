@@ -44,6 +44,23 @@ async function createUsers(users) {
 }
 
 const recover = async () => {
+  /* эта часть алгоритма определяет по каким полям сервиса он может быть связан с другими
+    для входных значений (service.params) это поля у которых widget.name === 'file'
+    для выходных значений (service.output_params) это поля у которых widget.name === 'file_save'
+
+    на основе этой информации создается объект
+    inAndOut = {
+      [id - индектификатор сервиса]: {
+        type: тип сервиса
+        name: название сервиса
+        input: названия входных полей по которым сервис может принимать данные из другий сервисов
+        externalInput: другие входные поля
+        output: названия входных полей по которым сервис может передавать данные в другие сервисы
+        externalOutput: другие выходные поля
+      }
+    }
+    _______________________________________________________________________________________________  
+  */
   const serviceData = await models.Service.findAll();
 
   let inAndOut = serviceData.reduce((acc, item) => {
@@ -82,6 +99,8 @@ const recover = async () => {
 	fs.writeFile(filePath, JSON.stringify(inAndOut), () => {
     console.log("write to inAndOut")
   })
+
+  //______________________________________________________________________________________________
 
   // console.log(inAndOut[263]);
   // console.log(inAndOut[205]);
@@ -264,15 +283,6 @@ const recover = async () => {
           target: taskIdToLokalId[link.target],
         };
       });
-      // if (task.id === 7208) {
-      //     console.log('task.id', task.id)
-      //     console.log("nodes", nodes);
-      //     console.log("nodes", nodes[0].inputs);
-      //     console.log("nodes", nodes[1].inputs);
-      //     console.log("nodes", nodes[1].outputs);
-      //     console.log("taskIdToLokalId", taskIdToLokalId);
-      //     console.log("localLinks", localLinks)
-      // }
       if (nodes.length > 1) {
         compositions.push({
           id: id,

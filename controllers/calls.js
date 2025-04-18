@@ -12,9 +12,7 @@ const baseUrl =
     "http://cris.icc.ru/dataset/list?f=186&count_rows=true&iDisplayStart=0&iDisplayLength=1";
 
 const createBaseUrl = (displayStart, displayLength) => {
-    return `http://cris.icc.ru/dataset/list?f=186&count_rows=true&iDisplayStart=${displayStart}&iDisplayLength=${
-        displayStart + displayLength
-    }`;
+    return `http://cris.icc.ru/dataset/list?f=186&count_rows=true&iDisplayStart=${displayStart}&iDisplayLength=${displayLength}`;
 };
 
 const deleteCallsByIds = async (idsToDelete) => {
@@ -77,7 +75,7 @@ const updateCalls = async (req, res) => {
     let counter = 1;
 
     try {
-        while (iDisplayStart < totalRecords) {
+        while (iDisplayStart < totalRecords ) {
             console.log("calls update counter", counter);
             console.log(iDisplayStart, " ----------------------------------");
             const requestUrl = createBaseUrl(iDisplayStart, displayLength);
@@ -117,6 +115,7 @@ const updateCalls = async (req, res) => {
                         os_pid: item.os_pid,
                         owner: item.owner,
                         result: item.result,
+                        status: item.status,
                         start_time: item.start_time,
                     },
                 });
