@@ -8,8 +8,8 @@ const {
 } = require('../controllers/services');
 
 servicesRouter.route('/').get(getServices);
-servicesRouter.route('/getRecomendations').get(getRecomendations);
-servicesRouter.route('/getRecomendation').get(getRecomendation);
+servicesRouter.route('/getRecomendations').get(cors(),getRecomendations);
+servicesRouter.route('/getRecomendation').get(cors(),getRecomendation);
 
 
 
