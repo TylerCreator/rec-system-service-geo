@@ -67,14 +67,12 @@ const start = async () => {
       // Проверка наличия сертификатов
       console.log(config, fs.existsSync(config.certPath))
       if (config && fs.existsSync(config.certPath) && fs.existsSync(config.keyPath)) {
-        try {
-          const options = {
-            key: fs.readFileSync(config.keyPath),
-            cert: fs.readFileSync(config.certPath),
-          };
-        } catch(e) {
-          console.log(e)
-        }
+        
+          
+        const options = {
+          key: fs.readFileSync(config.keyPath),
+          cert: fs.readFileSync(config.certPath),
+        };
 
 
         https.createServer(options, app).listen(PORT, () => {
