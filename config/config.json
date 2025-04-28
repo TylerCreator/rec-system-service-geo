@@ -1,4 +1,4 @@
 {
-   "keyPath": "certs/privkey.pem",
-   "certPath": "certs/fullchain.pem"
+   "keyPath": "/certs/privkey.pem",
+   "certPath": "/certs/fullchain.pem"
 }

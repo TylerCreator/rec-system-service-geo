@@ -20,7 +20,7 @@ services:
       DB_USER: "$POSTGRESDB_USER"
       DB_PASSWORD: "$POSTGRESDB_ROOT_PASSWORD"
       DB_NAME: "$POSTGRESDB_DATABASE"
-      DB_PORT: "$POSTGRESDB_LOCAL_PORT"
+      DB_PORT: "$POSTGRESDB_DOCKER_PORT"
     restart: always
 
   postgresdb:
