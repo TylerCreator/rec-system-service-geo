@@ -65,11 +65,17 @@ const start = async () => {
       await sequelize.authenticate()
       await sequelize.sync()
       // Проверка наличия сертификатов
+      console.log(config, fs.existsSync(config.certPath))
       if (config && fs.existsSync(config.certPath) && fs.existsSync(config.keyPath)) {
-        const options = {
-          key: fs.readFileSync(config.keyPath),
-          cert: fs.readFileSync(config.certPath),
-        };
+        try {
+          const options = {
+            key: fs.readFileSync(config.keyPath),
+            cert: fs.readFileSync(config.certPath),
+          };
+        } catch(e) {
+          console.log(e)
+        }
+
 
         https.createServer(options, app).listen(PORT, () => {
           console.log(`HTTPS сервер работает на порту  ${PORT}`);
