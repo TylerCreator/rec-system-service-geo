@@ -8,10 +8,27 @@ RUN apk add py3-pip
 # RUN apk add --no-cache python3 py3-pip
 RUN pip3 install threadpoolctl
 WORKDIR /usr/src/app
-COPY package*.json .
+COPY package*.json ./
 RUN npm install
-COPY . .
-COPY ./wait-for-it.sh .
+COPY ./ ./
+COPY ./wait-for-it.sh ./
 RUN chmod +x ./wait-for-it.sh
 EXPOSE 8080
 CMD ["npm", "start"]
+
+
+# FROM node:17-alpine
+# RUN apk update && apk add bash
+
+# RUN apk add py3-scikit-learn py3-pip
+# RUN apk add py3-pip
+
+# RUN pip3 install threadpoolctl
+# WORKDIR /usr/src/app
+# COPY package*.json ./
+# RUN npm install
+# COPY ./ ./
+# COPY ./wait-for-it.sh ./
+# RUN chmod +x ./wait-for-it.sh
+# EXPOSE 8080
+# CMD ["npm", "start"]
