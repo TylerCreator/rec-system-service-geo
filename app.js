@@ -6,6 +6,7 @@ const cors = require('cors');
 const nocache = require('nocache');
 const cron = require('node-cron');
 const morgan = require('morgan');
+const fs = require('fs');
 const https = require('https');
 const http = require('http');
 
