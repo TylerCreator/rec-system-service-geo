@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
+const waitPort = require('wait-port');
 
 const {
   NODE_DOCKER_PORT: PORT = 8080,
@@ -62,6 +63,8 @@ app.use('/:404', (req, res, next) => {
 
 const start = async () => {
   try {
+      await waitPort({ host: process.env.DB_HOST, port: process.env.DB_PORT, timeout: 60000 });
+
       await sequelize.authenticate()
       await sequelize.sync()
       // Проверка наличия сертификатов
