@@ -12,6 +12,9 @@ services:
     env_file: ./.env
     ports:
       - "$NODE_LOCAL_PORT:$NODE_DOCKER_PORT"
+    volumes:
+      - /etc/letsencrypt/live/geos.icc.ru:/certs:ro
+      - /etc/letsencrypt/archive/geos.icc.ru:/archive:ro
     environment:
       DB_HOST: postgresdb
       DB_USER: "$POSTGRESDB_USER"

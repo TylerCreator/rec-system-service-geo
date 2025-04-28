@@ -1,4 +1,4 @@
 {
-   "keyPath": "/etc/letsencrypt/live/geos.icc.ru/privkey.pem",
-   "certPath": "/etc/letsencrypt/live/geos.icc.ru/fullchain.pem"
+   "keyPath": "certs/privkey.pem",
+   "certPath": "certs/fullchain.pem"
 }
