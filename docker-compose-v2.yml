@@ -13,8 +13,8 @@ services:
     ports:
       - "$NODE_LOCAL_PORT:$NODE_DOCKER_PORT"
     volumes:
-      - /etc/letsencrypt/live/geos.icc.ru:/certs:ro
-      - /etc/letsencrypt/archive/geos.icc.ru:/archive:ro
+      - /etc/letsencrypt/live/geos.icc.ru/fullchain.pem:/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/geos.icc.ru/privkey.pem:/certs/privkey.pem:ro
     environment:
       DB_HOST: postgresdb
       DB_USER: "$POSTGRESDB_USER"
