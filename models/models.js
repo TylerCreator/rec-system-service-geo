@@ -74,6 +74,17 @@ const Composition = sequelize.define('Composition', {
   },
 });
 
+const Dataset = sequelize.define('Datasets', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    unique: true
+  },
+  guid: {
+    type: DataTypes.STRING,
+  },
+})
+
 
 const User = sequelize.define('User', {
   id: {
@@ -121,5 +132,6 @@ module.exports = {
     Service,
     Composition,
     User,
-    UserService
+    UserService,
+    Dataset
 }

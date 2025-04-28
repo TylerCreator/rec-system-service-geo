@@ -2,10 +2,12 @@ const { updateCalls } = require("./calls");
 const { recover } = require("./compositions");
 const servicesController = require("./services");
 const models = require("../models/models"); // Путь к модели
+const { updateDatasets } = require("./datasets");
 
 const updateAll = async (req, res) => {
     try {
         await updateCalls();
+        await updateDatasets();
         await servicesController.updateServices();
         await recover();
         res.status(200).send("Updated successfully");

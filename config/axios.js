@@ -9,7 +9,6 @@ module.exports = function getAxios()
         //create axios instance
         instance = axios.create({
             timeout: 90000, //optional
-            httpsAgent: new https.Agent({ keepAlive: true }),
             headers: {'Content-Type':'json'}
         })
     }

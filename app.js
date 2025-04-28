@@ -6,6 +6,8 @@ const cors = require('cors');
 const nocache = require('nocache');
 const cron = require('node-cron');
 const morgan = require('morgan');
+const https = require('https');
+const http = require('http');
 
 const {
   NODE_DOCKER_PORT: PORT = 8080,
@@ -22,6 +24,8 @@ const {
   updateRecomendations,
 } = require('./controllers/update');
 const { dumpCsv } = require('./controllers/calls.js');
+const datasetRouter = require('./routes/datasets.js');
+const config = require("./config/config.json");
 
 const app = express();
 
@@ -41,6 +45,7 @@ app.get('/', (req, res)=> {
 })
 
 app.use('/calls', callsRouter);
+app.use('/datasets', datasetRouter);
 app.use('/services', servicesRouter);
 app.use('/update', updateRouter );
 app.use('/compositions', compositionsRouter );
@@ -53,13 +58,28 @@ app.use('/:404', (req, res, next) => {
 // axios.defaults.timeout = 30000;
 // axios.defaults.httpsAgent = new https.Agent({ keepAlive: true });
 
+
 const start = async () => {
   try {
       await sequelize.authenticate()
       await sequelize.sync()
-      app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
+      // Проверка наличия сертификатов
+      if (config && fs.existsSync(config.certPath) && fs.existsSync(config.keyPath)) {
+        const options = {
+          key: fs.readFileSync(config.keyPath),
+          cert: fs.readFileSync(config.certPath),
+        };
 
-      cron.schedule('0 1 * * *', async () => {
+        https.createServer(options, app).listen(PORT, () => {
+          console.log(`HTTPS сервер работает на порту  ${PORT}`);
+        });
+      } else {
+        http.createServer(app).listen(PORT, () => {
+          console.log(`HTTP сервер работает на порту  ${PORT}`);
+        });
+      }
+
+      cron.schedule('0 0 * * *', async () => {
         await updateAll();
         await updateStatics();
         await dumpCsv();

@@ -2,10 +2,12 @@ const compositionsRouter = require('express').Router();
 const {
   recover,
   fetchAllCompositions,
-  getCompositionStats
+  getCompositionStats,
+  recoverNew
 } = require('../controllers/compositions');
 
 compositionsRouter.route('/recover').get(recover);
+compositionsRouter.route('/recoverNew').get(recoverNew);
 compositionsRouter.route('/').get(fetchAllCompositions);
 compositionsRouter.route('/stats').get(getCompositionStats)
 
