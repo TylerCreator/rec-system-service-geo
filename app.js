@@ -63,7 +63,7 @@ app.use('/:404', (req, res, next) => {
 
 const start = async () => {
   try {
-      await waitPort({ host: process.env.DB_HOST, port: process.env.DB_PORT, timeout: 60000 });
+      await waitPort({ host: process.env.DB_HOST, port: parseInt(process.env.DB_PORT,10), timeout: 60000 });
 
       await sequelize.authenticate()
       await sequelize.sync()
