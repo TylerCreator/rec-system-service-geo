@@ -75,11 +75,11 @@ const start = async () => {
         };
 
 
-        https.createServer(options, app).listen(PORT, () => {
+        https.createServer(options, app).listen(PORT,'0.0.0.0', () => {
           console.log(`HTTPS сервер работает на порту  ${PORT}`);
         });
       } else {
-        http.createServer(app).listen(PORT, () => {
+        http.createServer(app).listen(PORT,'0.0.0.0', () => {
           console.log(`HTTP сервер работает на порту  ${PORT}`);
         });
       }
